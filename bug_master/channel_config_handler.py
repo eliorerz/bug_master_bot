@@ -17,7 +17,7 @@ class BaseChannelConfig:
             Optional("prow_configurations"): {"owner": str, "repo": str, "files": [str]},
             Optional("assignees"): {
                 Optional("disable_auto_assign"): bool,
-                "issue_url": str,
+                Optional("issue_url"): str,
                 "data": [
                     {Optional("job_name"): str, Optional("jobs"): [str], "users": [str], Optional("startswith"): bool}
                 ],
