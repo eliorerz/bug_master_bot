@@ -197,7 +197,28 @@ class ProwJobFailure:
             )
             return actions
 
+        for assignees in channel_config.assignees_items():
+            self._apply_global_assignees_actions(assignees, actions)
+
         return actions
+
+    def _apply_global_assignees_actions(self, assignees: dict, actions: List[Action]):
+        jobs = assignees.get("jobs", [assignees.get("job_name")])
+        for job in jobs:
+            if assignees.get("startswith"):
+                assign = self.job_name.startswith(job)
+            else:
+                assign = self.job_name == job
+
+            if not assign:
+                continue
+
+            username = " ".join([f"@{username}" for username in assignees["users"]])
+            comment = f"{username} You have been automatically assigned to investigate this job failure"
+
+            action = Action("", "assignees-action", self._message_ts)
+            action.comment = Comment(text=comment, type=CommentType.ASSIGNEE, parse="full")
+            actions.append(action)
 
     @classmethod
     def _join_comments(cls, comments: Set[Comment]) -> Comment:
