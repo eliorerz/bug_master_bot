@@ -234,20 +234,23 @@ class ProwJobFailure:
         actions = list()
 
         for action_data in channel_config.actions_items():
-            if filter_id and (action_data.get("action_id") is None or action_data.get("action_id") != filter_id):
-                continue
+            try:
+                if filter_id and (action_data.get("action_id") is None or action_data.get("action_id") != filter_id):
+                    continue
 
-            ignore_others = action_data.get("ignore_others", None)
+                ignore_others = action_data.get("ignore_others", None)
 
-            conditions = action_data.get(
-                "conditions",
-                [{"contains": action_data.get("contains", ""), "file_path": action_data.get("file_path", "")}],
-            )
-
-            for condition in conditions:
-                actions += await self.format_and_update_actions(
-                    **condition, config_entry=action_data, ignore_others=ignore_others
+                conditions = action_data.get(
+                    "conditions",
+                    [{"contains": action_data.get("contains", ""), "file_path": action_data.get("file_path", "")}],
                 )
+
+                for condition in conditions:
+                    actions += await self.format_and_update_actions(
+                        **condition, config_entry=action_data, ignore_others=ignore_others
+                    )
+            except UnicodeDecodeError as e:
+                logger.error(f"{e}, Action data: {action_data}")
 
         return actions
 
