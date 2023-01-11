@@ -99,7 +99,6 @@ class MessageChannelEvent(Event):
             logger.debug(f"Adding reactions={[action.reaction for action in actions]}")
             await self.add_reactions([action for action in actions if action.reaction], ignore_others)
             await self.add_comments([action for action in actions if action.comment], ignore_others)
-            # self.add_record(pj)  # todo need to fix database behavior
 
     @classmethod
     def filter_ignore_others(cls, actions: List[Action], ignore_others: bool = False):

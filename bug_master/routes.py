@@ -3,6 +3,7 @@ import json
 from typing import Tuple, Union
 from urllib.parse import parse_qs
 
+# import traceback
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -46,8 +47,10 @@ async def handle_event_exception(event: Event, **kwargs):
         base_err = "Got error while handled event: "
         logger.error(f"{{{event}}} {base_err}, {e.__class__.__name__} {e}")
         if event.user_id:
+            err = f"{base_err}\n```{{{event}}}```\n" f"Error:\n```{e.__class__.__name__}: {e}```"
+            # err += f"```{traceback.format_exc()}```"
             await bot.add_comment(
-                event.user_id, f"{base_err}\n```{{{event}}}```\n" f"Error:\n```{e.__class__.__name__}: {e}```"
+                event.user_id, err
             )
 
 

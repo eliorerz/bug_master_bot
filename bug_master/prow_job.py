@@ -79,7 +79,7 @@ class ProwJobFailure:
     def build_id(self):
         return self._resource.build_id
 
-    @AsyncTTL(time_to_live=86400, maxsize=1024, skip_args=1)
+    # @AsyncTTL(time_to_live=86400, maxsize=1024, skip_args=1)
     async def get_content(self, file_path: str, storage_link: str) -> Union[str, None]:
         if not file_path:
             return None
@@ -100,6 +100,10 @@ class ProwJobFailure:
         dir_content = await self.get_content(
             dir_path, self._storage_link.replace(self.BASE_STORAGE_URL, self.DIRS_STORAGE_URL)
         )
+
+        if not dir_content:
+            logger.error(f"Empty dir {dir_path} content. Please check directory path or if prow is up.")
+            return None, None
 
         navigable_strings = [
             [c for c in tag.contents if isinstance(c, element.NavigableString)]
@@ -257,6 +261,9 @@ class ProwJobFailure:
     async def format_and_update_actions(
         self, file_path: str, contains: str, config_entry: dict, ignore_others: bool
     ) -> List[Action]:
+        if not file_path or not contains:
+            return []
+
         if "{job_name}" in file_path:
             file_path = file_path.format(job_name=self.job_name)
 
